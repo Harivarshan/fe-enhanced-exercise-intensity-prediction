@@ -2,6 +2,7 @@ import React from 'react';
 import {useNavigate} from "react-router-dom";
 import Logo from "../../../assets/dumbbell.png";
 import LogoTextGif from "../../../assets/logo-text.gif";
+import "./landing_page.css"
 
 const LandingPage = () => {
     const HomeButton = () => {
@@ -21,14 +22,10 @@ const LandingPage = () => {
     return (
         <>
             <div>
-                <img src={Logo} alt="P-I-E-E" className="gif"/>
+                <img src={Logo} alt="P-I-E-E"/>
                 <img src={LogoTextGif} alt="p-i-e-e" className="gif"/>
             </div>
-            <div className="card">
-                <HomeButton/>
-            </div>
-            <div className="container">
-            </div>
+            <HomeButton/>
         </>
     );
 };
