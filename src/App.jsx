@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import NavBar from "./components/common/navigation/navbar.jsx";
 import ViewUser from "./components/user/viewUser/viewUser.jsx";
+import SignIn_Login from "./components/common/signIn/signIn_login.jsx";
 
 const App = () => {
 
@@ -14,8 +15,10 @@ const App = () => {
             <Routes>
                 <Route path="/" element={<LandingPage/>}/>
                 <Route element={<NavBar/>}>
+                    <Route path="/:action" element={<SignIn_Login/>}/>
                     <Route path="/home" element={<HomePage/>}/>
                     <Route path="/users" element={<ViewUser/>}/>
+                    <Route path="/profile" element={<ViewUser/>}/>
                 </Route>
             </Routes>
         </div>
