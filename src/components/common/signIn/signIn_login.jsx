@@ -106,6 +106,11 @@ const SignIn_Login = () => {
                 <button type="submit">{isSignIn === 'signin' ? 'Sign In' : 'Log In'}</button>
             </form>
             {alertBox()}
+            <div>
+                <p><a
+                    href={isSignIn === 'signin' ? "/login" : "/signin"}>{isSignIn === 'signin' ? "Already have an account? Log in now!" : "Don't have an account sign up now!"} 🤯</a>
+                </p>
+            </div>
         </div>
     );
 };

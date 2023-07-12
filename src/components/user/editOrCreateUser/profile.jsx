@@ -2,68 +2,73 @@
 
 import {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import './profile.css.css'
+import './profile.css'
+import UserService from "../../../service/UserService.jsx";
 import AuthService from "../../../service/AuthService.jsx";
 
-const SignIn_Login = () => {
-    const isSignIn = useParams().action; // Get the isSignIn parameter from the URL
+const Profile = () => {
     const [userData, setUserData] = useState({});
+    const userId = useParams().id;
 
+    const [id, setId] = useState()
     const navigate = useNavigate()
-    const [errorMsg, setErrorMsg] = useState("")
-    const [authStatus, setAuthStatus] = useState(false)
+    const [isEdit, setIsEdit] = useState(true)
+    const [isCreate, setIsCreate] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
-        if (isSignIn === 'signin') {
-            const data = Login()
-            console.log('Perform sign-in:', email, data);
-        } else {
-            Login()
-        }
-
-        setEmail('');
-        setPassword('');
+        // if (isSignIn === 'signin') {
+        //     const data = Login()
+        //     console.log('Perform sign-in:', email, data);
+        // } else {
+        //     Login()
+        // }
+        //
+        // setEmail('');
+        // setPassword('');
     };
 
-    const Login = async () => {
+    const getAuthStatus = async () => {
         try {
-            const user_creds = {email: email, password: password, name: name?.toString()}
-            console.log(user_creds)
-            setErrorMsg("")
             setIsLoading(true)
-            setAuthStatus(false)
-            const response = isSignIn === 'signin' ? await AuthService.signIn(user_creds) :
-                await AuthService.logIn(user_creds)
-            if (response.status === 200) {
-                setAuthStatus(true);
-                console.log("data", response.data);
-            }
+            const userInfo = await checkLogin();
+            setId(userInfo['id'])
+            const response = userInfo['role'] === 'user' ? await UserService.getUserById(userInfo['id']) : await UserService.getUserById(userId);
+            setUserData(response.data);
         } catch (error) {
-            if (error.response && (error.response.status === 401 || error.response.status === 400)) {
-                console.log("data", error.response);
-                setErrorMsg(error.response.data["error"]);
+            if (error.response.status === 404) {
+                console.log("am i here?")
+                setIsCreate(true)
+                setIsEdit(false)
             }
         } finally {
             setIsLoading(false)
         }
+    }
+
+    const checkLogin = async () => {
+        try {
+            const response = await AuthService.validate();
+            if (response.status === 200) {
+                return response.data
+            }
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                navigate('/home');
+            }
+        }
     };
 
     useEffect(() => {
-        if (authStatus) {
-            navigate('/users');
-        }
-    }, [authStatus]);
+        getAuthStatus()
+    }, []);
 
-    const alertBox = () => {
-        if (errorMsg) {
-            return <div className="alert alert-danger mt-3" role="alert">
-                {errorMsg}
-            </div>
-        }
-    }
+    useEffect(() => {
+        updateValue("Person ID", id)
+    }, [id]); // Dependency array with myVariable
+
 
     const Loading = () => {
         if (isLoading) {
@@ -77,51 +82,117 @@ const SignIn_Login = () => {
         }
     }
 
+    const editMode = () => {
+        setIsEdit(false)
+    }
+
+    const AddData = async () => {
+        try {
+            setIsLoading(true)
+            console.log(id)
+            if (isCreate) {
+                await console.log("inside block")
+                updateValue("Person ID", id)
+                console.log(userData)
+            }
+            console.log(userData)
+            const response = isCreate ? await UserService.createUser(userData) : await UserService.updateUser(userData, id)
+            if (response.status === 200) {
+                return response.data
+            }
+        } catch (e) {
+            console.log(e.response, e)
+        } finally {
+            console.log(userData)
+            setIsLoading(false)
+            setIsEdit(true)
+            setIsCreate(false)
+        }
+    }
+
+    const updateValue = (type, e) => {
+        setUserData(userData => ({
+            ...userData,
+            [type]: e,
+        }));
+    }
+
+
     return (
         <div className="mx-auto margin-top mb-0 p-3 shadow rounded-4 w-50">
-            <h2>Profile <img src={} alt={"log-in"}/></h2>
+            <h2>{Object.keys(userData).length > 0 ? "Profile 👔" : "Create User 👔"}</h2>
             {Loading()}
             <form onSubmit={handleFormSubmit}>
-                {isSignIn === 'signin' ?
-                    <>Name 📛 <br/>
-                        <div className="mb-2">
-                            <input className="bordaaa shadow-sm" type="name" value={name}
-                                // onChange={(e) => setName(e.target.value)}
-                                   required/>
-                        </div>
-                    </> :
-                    ''}
-                Email 📩: <br/>
+                Age 🔢 <br/>
                 <div className="mb-2">
-                    <input className="bordaaa shadow-sm" type="email" value={userData}
-                        // onChange={(e) => setEmail(e.target.value)}
+                    <input className="bordaaa shadow-sm" type="number" value={userData['Age']}
+                           onChange={(e) => updateValue('Age', e.target.value)}
+                           required disabled={isEdit}/>
+                </div>
+
+                Gender ☿️ : <br/>
+                <div className="mb-2">
+                    <select name="encoded_gender" className="bordaaa shadow-sm" disabled={isEdit}
+                            onChange={(e) => updateValue(e.target.name, e.target.value)}
+                            value={userData['encoded_gender']} required>
+                        <option value="">Select gender</option>
+                        <option value={0}>Male</option>
+                        <option value={1}>Female</option>
+                    </select>
+                </div>
+
+                Avg Daily Steps 🚶‍♂️: <br/>
+                <div className="mb-2">
+                    <input className="bordaaa shadow-sm" type="number" value={userData['Daily Steps']}
+                           disabled={isEdit}
+                           onChange={(e) => updateValue('Daily Steps', e.target.value)}
                            required/>
                 </div>
-                Password 🔑 : <br/>
+                Resting Heart Rate 💓 : <br/>
                 <div className="mb-2">
-                    <input className="bordaaa shadow-sm" type="password" value={password}
-                        // onChange={(e) => setPassword(e.target.value)}
+                    <input className="bordaaa shadow-sm" type="number" value={userData['Heart Rate']}
+                           disabled={isEdit}
+                           onChange={(e) => updateValue('Heart Rate', e.target.value)}
                            required/>
                 </div>
-                Email 📩: <br/>
+                VO2_Max 🌬️: <br/>
                 <div className="mb-2">
-                    <input className="bordaaa shadow-sm" type="email" value={userData}
-                        // onChange={(e) => setEmail(e.target.value)}
+                    <input className="bordaaa shadow-sm" type="email" value={userData['VO2_Max']}
+                           disabled={isEdit}
+                           onChange={(e) => updateValue('VO2_Max', e.target.value)}
                            required/>
                 </div>
-                Password 🔑 : <br/>
+                Diastolic pressure #️🔽 : <br/>
                 <div className="mb-2">
-                    <input className="bordaaa shadow-sm" type="password" value={password}
-                        // onChange={(e) => setPassword(e.target.value)}
+                    <input className="bordaaa shadow-sm" type="number" value={userData['diastolic_preasure']}
+                           disabled={isEdit}
+                           onChange={(e) => updateValue('diastolic_preasure', e.target.value)}
                            required/>
                 </div>
+                Diastolic pressure #️🔼 : <br/>
+                <div className="mb-2">
+                    <input className="bordaaa shadow-sm" type="number" value={userData['systolic_preasure']}
+                           disabled={isEdit}
+                           onChange={(e) => updateValue('systolic_preasure', e.target.value)}
+                           required/>
+                </div>
+                BMI Category 🏋️ : <br/>
+                <select name="encoded_BMI_Category" className="bordaaa shadow-sm" disabled={isEdit}
+                        onChange={(e) => updateValue(e.target.name, e.target.value)}
+                        value={userData['encoded_BMI_Category']} required>
+                    <option value="">Select BMI category</option>
+                    <option value={0}>Normal</option>
+                    <option value={1}>Obese</option>
+                    <option value={2}>Overweight</option>
+                </select>
                 <div className="warning"></div>
-                <button type="button">Edit</button>
-                <button type="button">Add</button>
+                <button className="me-2" type="button" onClick={editMode} hidden={isCreate} disabled={!isEdit}>Edit
+                </button>
+                <button type="button" onClick={AddData} disabled={isEdit}>Add</button>
             </form>
-            {alertBox()}
+            {/*{alertBox()}*/}
         </div>
     );
 };
 
-export default SignIn_Login;
+export default Profile;

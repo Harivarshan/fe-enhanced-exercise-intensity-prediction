@@ -7,6 +7,8 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import NavBar from "./components/common/navigation/navbar.jsx";
 import ViewUser from "./components/user/viewUser/viewUser.jsx";
 import SignIn_Login from "./components/common/signIn/signIn_login.jsx";
+import Profile from "./components/user/editOrCreateUser/profile.jsx";
+import PredictionPage from "./components/predict/PredictionResult.jsx";
 
 const App = () => {
 
@@ -18,7 +20,8 @@ const App = () => {
                     <Route path="/:action" element={<SignIn_Login/>}/>
                     <Route path="/home" element={<HomePage/>}/>
                     <Route path="/users" element={<ViewUser/>}/>
-                    <Route path="/profile" element={<ViewUser/>}/>
+                    <Route path="/profile" element={<Profile/>}/>
+                    <Route path="/predict/:id" element={<PredictionPage/>}/>
                 </Route>
             </Routes>
         </div>
