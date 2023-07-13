@@ -87,14 +87,16 @@ const ListUserComponent = () => {
                                         <td className="border-end"> {`${user['systolic_preasure']}/${user['diastolic_preasure']}`} </td>
                                         <td className="border-end"> {user['VO2_Max']} </td>
                                         <td className="button-container">
-                                            <button className="btn button3 ">
+                                            <button className="btn button3 "
+                                                    onClick={() => navigate("/profile/" + user['Person ID'])}>
                                                 <i className="bi bi-pencil-square text-white"></i>
                                             </button>
                                             <button className="btn button2 "
                                                     onClick={() => deleteUser(user['Person ID'])}>
                                                 <i className="bi bi-x-square-fill text-white"></i>
                                             </button>
-                                            <button className="btn button1 ">
+                                            <button className="btn button1 "
+                                                    onClick={() => navigate("/predict/" + user['Person ID'])}>
                                                 <i className="bi bi-zoom-in text-white"></i>
                                             </button>
                                         </td>

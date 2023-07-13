@@ -10,6 +10,9 @@ const NavBar = () => {
     const [userType, setUserType] = useState("")
     const Navigate = useNavigate();
 
+    const signOut = async () => {
+        await AuthService.signOut()
+    }
 
     useEffect(() => {
         AuthService.validate().then((res) => {
@@ -28,8 +31,9 @@ const NavBar = () => {
                         <a className="nav-link" onClick={() =>
                             Navigate('/predict')
                         }>Predict</a>
-                        <a className="nav-link" onClick={() =>
-                            Navigate('/signout')
+                        <a className="nav-link" href="/home" onClick={() => {
+                            signOut()
+                        }
                         }>Sign out</a>
                     </>
                 )
@@ -40,15 +44,17 @@ const NavBar = () => {
                         <a className="nav-link" onClick={() =>
                             Navigate('/users')
                         }>Users</a>
-                        <a className="nav-link" onClick={() =>
-                            Navigate('/signout')
+                        <a className="nav-link" href="/home" onClick={() => {
+                            signOut().then(() => setIsAuthenticated(false))
+                        }
                         }>Sign out</a>
                     </>
                 )
             }
         } else {
-            return (<a className="nav-link" onClick={() =>
+            return (<a className="nav-link" onClick={() => {
                 Navigate('/login')
+            }
             }>Log In</a>)
         }
     }
